@@ -13,7 +13,11 @@ The app does not upload inputs, ciphertexts, or keys. It is an educational examp
 
 ## Deploy on Vercel
 
-This is a static site after the WebAssembly artifacts are built. Import this repository in Vercel, leave the framework preset as **Other**, leave the build command empty, and set the output directory to `public` (already set in `vercel.json`). The files in `public/` are deployed as-is.
+This is a static site after the WebAssembly artifacts are built. Click the button to connect your Vercel account and import the repository:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FReeshavChowdhury%2Fseal-encrypted-computing-demo)
+
+Leave the framework preset as **Other**, leave the build command empty, and use `public` as the output directory (already set in `vercel.json`). The files in `public/` are deployed as-is. Each push to the connected GitHub repository can trigger a new deployment.
 
 Build `public/seal/seal.js` and `public/seal/seal.wasm` before deployment by following the WebAssembly instructions below. They are checked in so Vercel does not need a C++ or Emscripten build environment.
 

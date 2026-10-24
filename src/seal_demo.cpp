@@ -9,7 +9,20 @@
 using namespace seal;
 using namespace emscripten;
 
-val compute(int a, int b, bool multiply)
+std::string bytes_to_hex(const std::string &bytes)
+{
+    constexpr char digits[] = "0123456789abcdef";
+    std::string hex;
+    hex.reserve(bytes.size() * 2);
+    for (unsigned char byte : bytes)
+    {
+        hex.push_back(digits[byte >> 4]);
+        hex.push_back(digits[byte & 0x0f]);
+    }
+    return hex;
+}
+
+val compute(int a, int b, bool multiply, bool include_artifacts)
 {
     std::string stage = "parameter setup";
     try
@@ -33,8 +46,11 @@ val compute(int a, int b, bool multiply)
         stage = "public key generation";
         keygen.create_public_key(public_key);
         RelinKeys relin_keys;
-        stage = "relinearization key generation";
-        keygen.create_relin_keys(relin_keys);
+        if (multiply)
+        {
+            stage = "relinearization key generation";
+            keygen.create_relin_keys(relin_keys);
+        }
 
         stage = "encryptor setup";
         Encryptor encryptor(context, public_key);
@@ -73,6 +89,16 @@ val compute(int a, int b, bool multiply)
         val output = val::object();
         output.set("value", static_cast<double>(result));
         output.set("ciphertextBytes", static_cast<double>(serialized.str().size()));
+        if (include_artifacts)
+        {
+            std::stringstream public_key_stream;
+            public_key.save(public_key_stream);
+            const auto public_key_bytes = public_key_stream.str();
+            const auto ciphertext_bytes = serialized.str();
+            output.set("publicKeyBytes", static_cast<double>(public_key_bytes.size()));
+            output.set("publicKeyHex", bytes_to_hex(public_key_bytes));
+            output.set("ciphertextHex", bytes_to_hex(ciphertext_bytes));
+        }
         return output;
     }
     catch (const std::exception &error)
@@ -83,7 +109,7 @@ val compute(int a, int b, bool multiply)
     }
 }
 
-val compute_ckks(val input_a, val input_b, int operation, int steps)
+val compute_ckks(val input_a, val input_b, int operation, int steps, bool include_artifacts)
 {
     std::string stage = "parameter setup";
     try
@@ -218,6 +244,16 @@ val compute_ckks(val input_a, val input_b, int operation, int steps)
         }
         output.set("values", output_values);
         output.set("ciphertextBytes", static_cast<double>(serialized.str().size()));
+        if (include_artifacts)
+        {
+            std::stringstream public_key_stream;
+            public_key.save(public_key_stream);
+            const auto public_key_bytes = public_key_stream.str();
+            const auto ciphertext_bytes = serialized.str();
+            output.set("publicKeyBytes", static_cast<double>(public_key_bytes.size()));
+            output.set("publicKeyHex", bytes_to_hex(public_key_bytes));
+            output.set("ciphertextHex", bytes_to_hex(ciphertext_bytes));
+        }
         return output;
     }
     catch (const std::exception &error)

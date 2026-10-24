@@ -33,6 +33,47 @@ function formatApprox(value) {
   return rounded === "-0" ? "0" : rounded;
 }
 
+function downloadHex(hex, filename) {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < bytes.length; i++) bytes[i] = Number.parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  const url = URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function showHexOnDemand(detailsId, hex) {
+  const details = $(detailsId);
+  const pre = details.querySelector("pre");
+  details.open = false;
+  pre.textContent = "";
+  details.ontoggle = () => {
+    if (details.open) {
+      const lines = hex.match(/.{1,64}/g) || [];
+      pre.textContent = lines.join("\n");
+    } else {
+      pre.textContent = "";
+    }
+  };
+}
+
+function renderArtifacts(prefix, output, scheme) {
+  const panel = $(`${prefix}-artifacts`);
+  if (!$(`${prefix}-inspect`).checked) {
+    panel.classList.add("hidden");
+    return;
+  }
+  $(`${prefix}-public-size`).textContent = `${output.publicKeyBytes.toLocaleString()} bytes`;
+  $(`${prefix}-cipher-size`).textContent = `${output.ciphertextBytes.toLocaleString()} bytes`;
+  $(`${prefix}-download-public`).onclick = () => downloadHex(output.publicKeyHex, `seal-${scheme}-public-key.bin`);
+  $(`${prefix}-download-cipher`).onclick = () => downloadHex(output.ciphertextHex, `seal-${scheme}-result-ciphertext.bin`);
+  showHexOnDemand(`${prefix}-public-view`, output.publicKeyHex);
+  showHexOnDemand(`${prefix}-cipher-view`, output.ciphertextHex);
+  panel.classList.remove("hidden");
+}
+
 function setScheme(scheme) {
   const bfv = scheme === "bfv";
   $("tab-bfv").classList.toggle("active", bfv);
@@ -82,12 +123,14 @@ button.addEventListener("click", () => {
       const a = numberValue("a");
       const b = numberValue("b");
       const op = $("op").value;
-      const out = seal.compute(a, b, op === "multiply");
+      const includeArtifacts = $("bfv-inspect").checked;
+      const out = seal.compute(a, b, op === "multiply", includeArtifacts);
       if (out.error) throw new Error(out.error);
       $("resultValue").textContent = out.value.toLocaleString();
       $("operationLabel").textContent = `${a} ${op === "multiply" ? "×" : "+"} ${b}`;
       $("cipherBytes").textContent = `${out.ciphertextBytes.toLocaleString()} ciphertext bytes evaluated`;
       $("result").classList.remove("hidden");
+      renderArtifacts("bfv", out, "bfv");
       setStatus("Encrypted evaluation complete. The result was decrypted locally.", "ready");
     } catch (error) {
       setStatus(error.message || "The encrypted computation failed.", "error");
@@ -112,13 +155,15 @@ ckksButton.addEventListener("click", () => {
       if (!Number.isInteger(steps) || steps < -3 || steps > 3) {
         throw new Error("Rotation steps must be a whole number from -3 to 3.");
       }
-      const out = seal.computeCkks(a, b, { add: 0, multiply: 1, rotate: 2 }[operation], steps);
+      const includeArtifacts = $("ckks-inspect").checked;
+      const out = seal.computeCkks(a, b, { add: 0, multiply: 1, rotate: 2 }[operation], steps, includeArtifacts);
       if (out.error) throw new Error(out.error);
       $("ckks-result-value").textContent = `[${out.values.map(formatApprox).join(", ")}]`;
       const labels = { add: "A + B", multiply: "A × B", rotate: `Rotate A ${steps > 0 ? `${steps} left` : `${Math.abs(steps)} right`}` };
       $("ckks-operation-label").textContent = labels[operation];
       $("ckks-cipher-bytes").textContent = `${out.ciphertextBytes.toLocaleString()} ciphertext bytes evaluated`;
       $("ckks-result").classList.remove("hidden");
+      renderArtifacts("ckks", out, "ckks");
       ckksStatus.textContent = "Encrypted evaluation complete. CKKS output is approximate and was decrypted locally.";
       ckksStatus.className = "status ready";
     } catch (error) {

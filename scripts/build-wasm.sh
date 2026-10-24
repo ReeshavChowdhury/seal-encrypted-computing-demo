@@ -36,6 +36,7 @@ em++ "$ROOT/src/seal_demo.cpp" "$BUILD/lib/libseal.a" \
   -s EXPORT_NAME=createSealModule \
   -s ENVIRONMENT=web \
   -s ALLOW_MEMORY_GROWTH=1 \
+  -s DYNAMIC_EXECUTION=0 \
   -s DISABLE_EXCEPTION_CATCHING=0 \
   -s ASSERTIONS=0 \
   -o "$ROOT/public/seal/seal.js"

@@ -2,6 +2,9 @@
 
 A small educational web application that demonstrates exact integer addition and multiplication with Microsoft SEAL's BFV homomorphic encryption scheme. Microsoft SEAL 4.7.0 is compiled to WebAssembly with a small custom Embind interface; the computation runs in the visitor's browser.
 
+- **Live demo:** https://seal-encrypted-computing-demo.vercel.app/
+- **Source:** https://github.com/ReeshavChowdhury/seal-encrypted-computing-demo
+
 ## What it does
 
 1. Creates a fresh BFV context and key pair for each calculation.

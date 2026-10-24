@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101713">
+  <meta name="description" content="A browser-based educational demo of Microsoft SEAL BFV encrypted integer addition and multiplication.">
+  <title>SEAL Lab — encrypted computing in your browser</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/" aria-label="SEAL Lab home"><span class="brand-mark">S</span><span>SEAL<span class="muted"> / LAB</span></span></a><a class="source-link" href="https://github.com/microsoft/SEAL" target="_blank" rel="noreferrer">Microsoft SEAL ↗</a></header>
+  <main>
+    <section class="hero">
+      <div class="hero-copy"><p class="eyebrow"><span class="pulse"></span> A BROWSER-ONLY FHE DEMO</p><h1>Compute on data<br><em>you can’t see.</em></h1><p class="intro">Encrypt two small integers with Microsoft SEAL’s BFV scheme, add or multiply their ciphertexts, then decrypt the answer. The whole demonstration runs locally in your browser.</p><div class="badges"><span>BFV · exact integer arithmetic</span><span>WebAssembly · SEAL 4.7.0</span></div></div>
+      <div class="flow-card" aria-label="Encryption and evaluation flow"><div class="flow-label">THE COMPUTATION</div><div class="flow-row"><span class="cipher">Enc(a)</span><span class="operator">+</span><span class="cipher">Enc(b)</span></div><div class="flow-arrow">↓ <span>evaluate while encrypted</span></div><div class="flow-row"><span class="cipher result-cipher">Enc(a + b)</span></div><div class="flow-arrow">↓ <span>decrypt in your browser</span></div><div class="plain-result">a + b <b>= answer</b></div><div class="flow-foot">Your secret key stays in this browser tab.</div></div>
+    </section>
+    <section class="workbench" aria-labelledby="workbench-title">
+      <div class="workbench-head"><div><p class="eyebrow">TRY A COMPUTATION</p><h2 id="workbench-title">Encrypted integer calculator</h2></div><span class="local-chip"><i></i> Runs locally</span></div>
+      <div class="form-grid"><label>First number<input id="a" type="number" min="0" max="999" step="1" value="12" inputmode="numeric"></label><label>Operation<select id="op"><option value="add">Add</option><option value="multiply">Multiply</option></select></label><label>Second number<input id="b" type="number" min="0" max="999" step="1" value="7" inputmode="numeric"></label><button id="compute" class="compute" disabled>Loading SEAL… <span>↗</span></button></div>
+      <div id="status" class="status" role="status" aria-live="polite">Loading the Microsoft SEAL WebAssembly module…</div>
+      <div id="result" class="result hidden" aria-live="polite"><div><span class="result-label">DECRYPTED RESULT</span><strong id="resultValue">—</strong></div><div class="result-meta"><span id="operationLabel">—</span><span id="cipherBytes">—</span><span>Key generated for this calculation</span></div></div>
+      <div class="steps" aria-label="What happens"><div><b>01</b><span>Generate keys</span></div><div><b>02</b><span>Encrypt inputs</span></div><div><b>03</b><span>Evaluate ciphertexts</span></div><div><b>04</b><span>Decrypt result</span></div></div>
+    </section>
+    <section class="explain"><div><p class="eyebrow">WHAT THIS SHOWS</p><h2>Numbers stay encrypted<br>during the operation.</h2></div><div class="explain-copy"><p>BFV supports exact arithmetic on encrypted integers. Here, the browser creates a fresh key pair, encrypts both values, evaluates their sum or product using the ciphertexts, and decrypts the result with the secret key.</p><p>This is a learning demo, not a secure service for real data. It runs the entire operation in your browser; it does not send encrypted inputs to a cloud evaluator. The sample parameters and interface are for demonstration only.</p><a href="https://github.com/microsoft/SEAL/blob/main/SECURITY.md" target="_blank" rel="noreferrer">Read Microsoft SEAL security guidance ↗</a></div></section>
+  </main>
+  <footer><span>SEAL Lab · Educational demonstration</span><a href="https://github.com/ReeshavChowdhury" target="_blank" rel="noreferrer">Reeshav Chowdhury ↗</a></footer>
+  <script src="/seal/seal.js"></script>
+  <script src="/app.js" defer></script>
+</body>
+</html>

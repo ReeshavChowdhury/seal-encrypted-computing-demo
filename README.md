@@ -1,18 +1,16 @@
 # SEAL Lab: Encrypted Computing Demo
 
-A small educational web application that demonstrates exact integer addition and multiplication with Microsoft SEAL's BFV homomorphic encryption scheme. Microsoft SEAL 4.7.0 is compiled to WebAssembly with a small custom Embind interface; the computation runs in the visitor's browser.
+An educational browser app using Microsoft SEAL 4.7.0. BFV demonstrates exact integer addition and multiplication; CKKS demonstrates approximate vector addition, multiplication, and slot rotation. A small custom Embind interface exposes the operations from WebAssembly, and all computation runs in the visitor's browser.
 
 - **Live demo:** https://seal-encrypted-computing-demo.vercel.app/
 - **Source:** https://github.com/ReeshavChowdhury/seal-encrypted-computing-demo
 
 ## What it does
 
-1. Creates a fresh BFV context and key pair for each calculation.
-2. Encrypts two integers (0–999) with the public key.
-3. Adds or multiplies the ciphertexts with the SEAL evaluator.
-4. Decrypts the result locally with the secret key.
+- **BFV:** creates a fresh context and key pair, encrypts two integers from 0–999, evaluates exact addition or multiplication, then decrypts locally.
+- **CKKS:** creates a fresh context and key pair, encrypts four-value vectors, evaluates approximate slot-wise addition or multiplication, or rotates the encrypted vector. Multiplication uses relinearization and rescaling; rotation generates the Galois key needed for the selected step.
 
-The app does not upload inputs, ciphertexts, or keys. It is an educational example, not a production cryptographic service. Its parameter choices and implementation are intended for demonstration; consult Microsoft's security guidance before building a real system.
+CKKS accepts exactly four finite values between -100 and 100. Positive rotation steps shift left; negative steps shift right. For this four-value view, the pattern repeats through the packed slots so rotation wraps around the displayed vector. CKKS results are approximate. The app does not upload inputs, ciphertexts, or keys. It is an educational example, not a production cryptographic service. Its parameter choices and implementation are intended for demonstration; consult Microsoft's security guidance before building a real system.
 
 ## Deploy on Vercel
 
